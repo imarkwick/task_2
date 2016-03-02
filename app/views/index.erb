@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task 1</title>
+
+    <link rel="stylesheet" href="foundation.min.css" />
+
+  </head>
+  
+  <body>
+
+    <div class="row" id="social-feeds">
+
+      <section class="small-12 columns medium-6 columns" id="twitter">
+        <h2>Twitter : No Mayo</h2>
+        <div id="tweet-container">
+          <a class="twitter-timeline small-12 columns" 
+            href="https://twitter.com/no_mayo_digital" 
+            data-widget-id="705038333685198848"
+            data-tweet-limit="5">
+            Tweets by @no_mayo_digital
+          </a>
+        </div>
+      </section>
+
+      <section class="small-12 columns medium-6 columns" id="instagram">
+        <h2>Instagram : <%= @user.username %></h2>
+        <div id="img-container" style="height:61rem;max-width:13rem;margin-bottom:10px;background-color:rgb(255, 255, 255);border-radius:5px;border:1px solid #e8e8e8;margin-left:auto;margin-right: auto;">
+          <%= @html %>
+        </div>
+      </section>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+    </script>
+
+  </body>
+
+</html>
