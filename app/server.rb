@@ -28,7 +28,7 @@ end
 
 def photo_stream
   @html = ""
-  for media_item in @client.user_recent_media[0..4]
+  for media_item in @client.user_recent_media.take(5)
     @html << "<img src='#{media_item.images.thumbnail.url}' class='medium-12 columns' style='padding:1rem;height:13rem;width:13rem;border:1px solid #e8e8e8;border-radius:5px;'><br>"
   end
 end
@@ -43,10 +43,15 @@ def twitter_connect
 end
 
 def tweet_stream
-  puts @twitter_client.user_timeline[0].created_at
 
-  @stream = @twitter_client.user_timeline[0..4]
-  puts @stream.length
+  @stream = @twitter_client.user_timeline.take(5)
+
+  @stream.each do |x|
+    if x.retweeted? == true
+      puts x.retweeted_status.user.screen_name
+    end
+  end
+
 end
 
 
