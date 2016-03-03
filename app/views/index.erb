@@ -19,15 +19,17 @@
         <h2 style="text-align:center;">Twitter : No Mayo</h2>
         <div id="tweet-container">
           <% @stream.each do |x| %>
-            <a href=<%= x.uri %> ><%= x.text %></a><br>
-            <p><%= x.created_at %></p><br>
-            <% if x.retweeted? == true %>
-              <p><%= x.retweeted_status.user.screen_name %></p>
-              <img src=<%= x.retweeted_status.user.profile_image_url %>><br>
-            <% else %>
-              <p><%= x.user.screen_name %></p>
-              <img src=<%= x.user.profile_image_url %>><br>
-            <% end %>
+            <div style="margin-top:2rem;border:1px solid #e8e8e8;border-radius:5px;padding:1rem;" id="tweet-container">
+              <a href=<%= x.uri %> ><p><%= x.text %></p></a>
+              <%= x.created_at %><br>
+              <% if x.retweeted? == true %>
+                <img src=<%= x.retweeted_status.user.profile_image_url %> />
+                <%= x.retweeted_status.user.screen_name %><br>
+              <% else %>
+                <img src=<%= x.user.profile_image_url %> />
+                <%= x.user.screen_name %><br>
+              <% end %>
+            </div>
           <% end %>
         </div>
       </section>
@@ -35,7 +37,10 @@
       <section class="small-12 columns medium-6 columns" id="instagram">
         <h2 style="text-align:center;">Instagram : <%= @user.username %></h2>
         <div id="img-container" style="height:65rem;max-width:13rem;margin-bottom:10px;background-color:rgb(255, 255, 255);margin-left:auto;margin-right: auto;">
-          <%= @html %>
+          <% @media_items.each do |x| %>
+            <img src=<%= x.images.thumbnail.url %> class='medium-12 columns' style='padding:1rem;height:13rem;width:13rem;border:1px solid #e8e8e8;border-radius:5px;' />
+            <p><%= insta_date(x) %></p>
+          <% end %>
         </div>
       </section>
     </div>

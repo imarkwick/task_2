@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'instagram'
 require 'twitter'
+require 'date'
 
 set :public, Proc.new { File.join(root, "..", "public") }
 
@@ -27,10 +28,12 @@ def instagram_connect
 end
 
 def photo_stream
-  @html = ""
-  for media_item in @client.user_recent_media.take(5)
-    @html << "<img src='#{media_item.images.thumbnail.url}' class='medium-12 columns' style='padding:1rem;height:13rem;width:13rem;border:1px solid #e8e8e8;border-radius:5px;'><br>"
-  end
+  created = @client.user_recent_media.take(5).first.created_time
+  @media_items = @client.user_recent_media.take(5)
+end
+
+def insta_date(item)
+  DateTime.strptime(item.created_time,'%s')
 end
 
 def twitter_connect
@@ -43,15 +46,7 @@ def twitter_connect
 end
 
 def tweet_stream
-
   @stream = @twitter_client.user_timeline.take(5)
-
-  @stream.each do |x|
-    if x.retweeted? == true
-      puts x.retweeted_status.user.screen_name
-    end
-  end
-
 end
 
 
