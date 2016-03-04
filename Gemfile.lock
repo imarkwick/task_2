@@ -60,6 +60,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  instagram (~> 1.1.6)
+  instagram
   sinatra
   twitter (~> 5.16.0)

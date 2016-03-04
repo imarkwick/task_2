@@ -13,6 +13,8 @@ get '/' do
   twitter_connect
   tweet_stream
 
+  ordered_stream(@insta_stream, @twitter_stream)
+
   erb :index
 end
 
@@ -28,25 +30,40 @@ def instagram_connect
 end
 
 def photo_stream
-  created = @client.user_recent_media.take(5).first.created_time
-  @media_items = @client.user_recent_media.take(5)
+  @insta_stream = @client.user_recent_media.take(5)
 end
 
-def insta_date(item)
-  DateTime.strptime(item.created_time,'%s')
+def ordered_stream(insta_stream, twitter_stream)
+
+  @full_stream = []
+  insta_stream.each { |x| @full_stream << x } 
+  twitter_stream.each { |x| @full_stream << x }
+
+  sort_by_date(@full_stream)
+end
+
+def sort_by_date(stream)
+  @new = @full_stream.sort_by { |obj|
+    case obj
+    when Twitter::Tweet
+      Time.at(obj.created_at)
+    else
+      Time.at(Integer(obj.created_time))
+    end
+  }
 end
 
 def twitter_connect
-  @twitter_client = Twitter::REST::Client.new do |config|
+  @twitter_client = Twitter::REST::Client.new { |config|
     config.consumer_key = ENV['TWITTER_CONSUMER_KEY']
     config.consumer_secret = ENV['TWITTER_CONSUMER_SECRET']
     config.access_token = ENV['TWITTER_ACCESS_TOKEN']
     config.access_token_secret = ENV['TWITTER_ACCESS_SECRET']
-  end
+  }
 end
 
 def tweet_stream
-  @stream = @twitter_client.user_timeline.take(5)
+  @twitter_stream = @twitter_client.user_timeline.take(5)
 end
 
 
