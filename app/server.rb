@@ -8,33 +8,21 @@ set :public, Proc.new { File.join(root, "..", "public") }
 get '/' do
 
   instagram_connect
-  photo_stream
+  @insta_stream = photo_stream
 
   twitter_connect
-  tweet_stream
+  @twitter_stream = tweet_stream
 
   ordered_stream(@insta_stream, @twitter_stream)
+
+  display(@new_stream)
 
   erb :index
 end
 
 private
 
-def token
-  ENV['INSTAGRAM_TOKEN']
-end
-
-def instagram_connect
-  @client = Instagram.client(access_token: token, count: 5)
-  @user = @client.user
-end
-
-def photo_stream
-  @insta_stream = @client.user_recent_media.take(5)
-end
-
 def ordered_stream(insta_stream, twitter_stream)
-
   @full_stream = []
   insta_stream.each { |x| @full_stream << x } 
   twitter_stream.each { |x| @full_stream << x }
@@ -43,7 +31,7 @@ def ordered_stream(insta_stream, twitter_stream)
 end
 
 def sort_by_date(stream)
-  @new = @full_stream.sort_by { |obj|
+  @new_stream = @full_stream.sort_by { |obj|
     case obj
     when Twitter::Tweet
       Time.at(obj.created_at)
@@ -51,6 +39,26 @@ def sort_by_date(stream)
       Time.at(Integer(obj.created_time))
     end
   }
+end
+
+def display(stream)
+  @html = ""
+  stream.reverse.each do |obj|
+    case obj
+    when Twitter::Tweet
+      @html << "<p style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;'>#{obj.text}</p>"
+    else
+      @html << "<img src='#{obj.images.thumbnail.url}' style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;margin-bottom:1rem;'/><br>"
+    end
+  end
+end
+
+def tweet_stream
+  @twitter_client.user_timeline.take(5)
+end
+
+def photo_stream
+  @client.user_recent_media.take(5)
 end
 
 def twitter_connect
@@ -62,8 +70,10 @@ def twitter_connect
   }
 end
 
-def tweet_stream
-  @twitter_stream = @twitter_client.user_timeline.take(5)
+def instagram_connect
+  token = ENV['INSTAGRAM_TOKEN']
+  @client = Instagram.client(access_token: token, count: 5)
+  @user = @client.user
 end
 
 
