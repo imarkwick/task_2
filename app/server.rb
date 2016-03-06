@@ -2,19 +2,20 @@ require 'sinatra'
 require 'instagram'
 require 'twitter'
 require 'date'
+require 'embedly'
+require 'json'
 
-set :public, Proc.new { File.join(root, "..", "public") }
+set :public_dir, Proc.new { File.join(root, "..", "public") }
 
 get '/' do
 
   instagram_connect
-  @insta_stream = photo_stream
+  @insta_stream = photo_stream(@client)
 
   twitter_connect
   @twitter_stream = tweet_stream
 
   ordered_stream(@insta_stream, @twitter_stream)
-
   display(@new_stream)
 
   erb :index
@@ -42,13 +43,29 @@ def sort_by_date(stream)
 end
 
 def display(stream)
+  
   @html = ""
+
   stream.reverse.each do |obj|
     case obj
     when Twitter::Tweet
-      @html << "<p style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;'>#{obj.text}</p>"
+      @html << "<blockquote class='twitter-tweet' style='margin-left:auto;margin-right:auto;'>
+                <a type='application/json+oembed' href='https://api.twitter.com/1/statuses/oembed.json?url=" + obj.url + "'></a></blockquote>"
     else
-      @html << "<img src='#{obj.images.thumbnail.url}' style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;margin-bottom:1rem;'/><br>"
+      # @html << "<img src='#{obj.images.thumbnail.url}' style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;margin-bottom:1rem;'/><br>"
+      embedly
+
+      @test = @embedly_api.oembed url: obj.link
+
+      puts @test[0].url
+
+      json_obj = JSON.pretty_generate(@test[0].marshal_dump)
+      
+      puts json_obj
+
+      @html << "<blockquote style='border:1px solid #e8e8e8'><img src='" + @test[0].thumbnail_url + "' /><p>" + @test[0].title + "</p></blockquote>"
+
+      # puts 'https://api.instagram.com/oembed?url=' + obj.link
     end
   end
 end
@@ -57,8 +74,8 @@ def tweet_stream
   @twitter_client.user_timeline.take(5)
 end
 
-def photo_stream
-  @client.user_recent_media.take(5)
+def photo_stream(instagram)
+  instagram.user_recent_media.take(5)
 end
 
 def twitter_connect
@@ -76,4 +93,7 @@ def instagram_connect
   @user = @client.user
 end
 
-
+def embedly
+  embed_key = ENV['EMBEDLY_KEY']
+  @embedly_api = Embedly::API.new key: embed_key, user_agent: 'Mozilla/5.0 (compatible; embedly-ruby/1.9.1;)'
+end
