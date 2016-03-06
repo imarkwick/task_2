@@ -52,20 +52,10 @@ def display(stream)
       @html << "<blockquote class='twitter-tweet' style='margin-left:auto;margin-right:auto;'>
                 <a type='application/json+oembed' href='https://api.twitter.com/1/statuses/oembed.json?url=" + obj.url + "'></a></blockquote>"
     else
-      # @html << "<img src='#{obj.images.thumbnail.url}' style='padding:2rem;border:1px solid #e8e8e8;border-radius:5px;margin-bottom:1rem;'/><br>"
       embedly
-
       @test = @embedly_api.oembed url: obj.link
-
-      puts @test[0].url
-
-      json_obj = JSON.pretty_generate(@test[0].marshal_dump)
       
-      puts json_obj
-
       @html << "<blockquote style='border:1px solid #e8e8e8'><img src='" + @test[0].thumbnail_url + "' /><p>" + @test[0].title + "</p></blockquote>"
-
-      # puts 'https://api.instagram.com/oembed?url=' + obj.link
     end
   end
 end
